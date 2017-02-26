@@ -1,3 +1,6 @@
+#ifndef MYMALLOC_H
+#define MYMALLOC_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -5,12 +8,7 @@ enum _errors
 {
 	NO_MEM, SHORT_MEM, BIG, NO_ALLOC, INVALID, OOR
 };
-/* Heap space */
-static char myblock[5000];
-/* Start of singly linked list for free partitions */
-static char *start;
 
-static int _initialized_ = 0;
 /* Largest free block */
 /* Macros: expects start of data(allocated)/list(free) */
 /* last bit defines allocation so even number amounts only */
@@ -40,3 +38,4 @@ void  Free(void *ptr);
 
 
 
+#endif

@@ -1,8 +1,12 @@
-#include <sys/time.h>
 
 #include "mymalloc.h"
 
+/* Heap space */
+static char myblock[5000];
+/* Start of singly linked list for free partitions */
+static char *start;
 
+static int _initialized_ = 0;
 
 void Error(enum _errors err, int line, char *file) {
   printf("Error at line: %d in %s:\n", line, file);
@@ -168,7 +172,6 @@ void *coalesce(void *ptr)
 		{
 			if(prevptr)
 			{
-				//if((int)(FREESIZE(prevptr))) assign_16(ptr, FREESIZE(prevptr) - (int)((long)ptr - (long)prevptr));
 				assign_16(prevptr, (int)((long)ptr - (long)prevptr));
 			}
 			else
@@ -298,118 +301,6 @@ void split(void *freeblock, void *prevfree, size_t size) {
 
 }
 
-int main(int argc, char** argv) {
-
-	char **holder; //= (char **)malloc(sizeof(char *) * 1000);
-/*
-	int i;
-	for(i = 0; i < 1000; ++i)
-	{
-		holder[i] = (char *)Malloc(1);
-	}
-	for(i = 0; i < 1000; ++i)
-	{
-		Free(holder[i]);
-	}
-	free(holder);
-	printf("STAGE 1 COMPLETED\n");
-	
-	char *bolder;
-	for(i = 0; i < 1000; ++i)
-	{
-		bolder = (char *)Malloc(1);
-		Free(bolder);
-	}
-	printf("STAGE 2 COMPLETED\n");	
-	*/
-	int i;
-	int mallocs = 0;
-	int frees = 0;
-	
-	struct timeval time;
-	
- /*for(i = 0; i < 2000; ++i)
-	{
-			
-	}
-	*/
-	gettimeofday(&time, 0);
-	srand((unsigned)time.tv_usec);
-	holder = (char **)malloc(sizeof(char *) * 1000);
-	/*for(i = 0; i < 2000; ++i)
-	{
-		printf("%ld\n", start);
-		if(mallocs == 1000)
-		{
-			Free(holder[frees]);
-			printf("did a free\n");
-			++frees;
-			continue;
-		}
-		if(mallocs <= frees)
-		{
-			holder[mallocs] = (char *)Malloc(1);
-			((long)holder[mallocs]) ? ++mallocs : --i;
-			printf("did an allocate\n");
-			continue;
-		}
-		else
-		{
-			if(rand() % 2)
-			{
-				holder[mallocs] = (char *)Malloc(1);
-				((long)holder[mallocs]) ? ++mallocs : --i;
-			printf("did an allocate\n");
-				continue;
-			}
-			else
-			{
-				Free(holder[frees]);
-				printf("did a free\n");
-				++frees;
-				continue;
-			}
-		}
-	}*/
-	int numgen;
-	for(i = 0; i < 2000; ++i)
-	{
-		numgen = (rand() % 64) + 1;
-		if(mallocs == 1000)
-		{
-			Free(holder[frees]);
-			++frees;
-			continue;
-		}
-		if(mallocs <= frees)
-		{
-			holder[mallocs] = (char *)Malloc(numgen);
-			((long)holder[mallocs]) ? ++mallocs : --i;
-			continue;
-		}
-		else
-		{
-			if(rand() % 2)
-			{
-				holder[mallocs] = (char *)Malloc(numgen);
-				((long)holder[mallocs]) ? ++mallocs : --i;
-				continue;
-			}
-			else
-			{
-				Free(holder[frees]);
-				++frees;
-				continue;
-			}
-		}
-	}
-		
-
-	
-	free(holder);
-  return 0;
-}
-
 void *Malloc(size_t size) {
   set_up(size);
   size = (size & 0x1) ? size + 1 : size;
@@ -438,7 +329,7 @@ void *Malloc(size_t size) {
   }
 
   split(freeblock, prevfree, size);
-
+	assign_16(freeblock, 0x80);
   return freeblock;
 }
 
