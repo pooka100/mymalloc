@@ -14,7 +14,7 @@ void getfrees()
 		thing = NEXT_FREE(thing);
 	}
 
-		printf("%ld -> %ld ", thing, FOOTER(thing));
+		printf("%ld -> %ld \n", thing, FOOTER(thing));
 }
 
 void Error(enum _errors err, int line, char *file) {
@@ -89,14 +89,19 @@ void *merge_right(void *ptr)
 	int total_size = SIZE(ptr) + SIZE(NEXT(ptr)) + 4;
 	/* It will obviously be the next item in the free list */
 
-	if (!FREESIZE(NEXT(ptr))) assign_16(ptr, 0);
-	else assign_16(ptr, FREESIZE(NEXT(ptr)) + 4 + SIZE(ptr));
-	
+		printf("I GOT HERE AND THE freeptr is: %ld\n", NEXT(ptr));	
+		printf("I GOT HERE AND THE freesize is: %ld\n", FREESIZE(NEXT(ptr)));	
+	if (FREESIZE(NEXT(ptr)) < 6) assign_16(ptr, 0);
+	else
+	{
+		assign_16(ptr, FREESIZE(NEXT(ptr)) + 4 + SIZE(ptr));
+	}	
 
 	assign_16(HEADER(ptr), total_size);
 
 	//WTFFFFF 
 	assign_16(FOOTER(ptr), total_size);
+	printf("THE FREESIZE OF THE PTR IS: %ld\n", FREESIZE(ptr));
 	return ptr;	
 }
 
@@ -230,9 +235,10 @@ void *coalesce(void *ptr)
 			assign_16(ptr, 0);
 
 	
-			ptr = merge_right(ptr);
 		  ptr = merge_left(ptr);
+			ptr = merge_right(ptr);
 		}
+	printf("THE FREESIZE OF THE PTRTHATS IS: %ld\n", FREESIZE(ptr));
 		return ptr;
 	}
 	else
@@ -363,7 +369,7 @@ int main(int argc, char** argv) {
 	srand((unsigned)time.tv_usec);
 	holder = (char **)malloc(sizeof(char *) * 1000);
 	printf("%ld\n", myblock + 2);	
-	for(i = 0; i < 2000; ++i)
+	/*for(i = 0; i < 2000; ++i)
 	{
 		getfrees();	
 		printf("%ld\n", start);
@@ -398,8 +404,47 @@ int main(int argc, char** argv) {
 				continue;
 			}
 		}
+	}*/
+	int numgen;
+	for(i = 0; i < 2000; ++i)
+	{
+		numgen = (rand() % 64) + 1;
+		printf("%d\n", numgen);
+		getfrees();	
+		printf("%ld\n", start);
+		if(mallocs == 1000)
+		{
+			Free(holder[frees]);
+			printf("did a free\n");
+			++frees;
+			continue;
+		}
+		if(mallocs <= frees)
+		{
+			holder[mallocs] = (char *)Malloc(numgen);
+			((long)holder[mallocs]) ? ++mallocs : --i;
+			printf("did an allocate\n");
+			continue;
+		}
+		else
+		{
+			if(rand() % 2)
+			{
+				holder[mallocs] = (char *)Malloc(numgen);
+				((long)holder[mallocs]) ? ++mallocs : --i;
+			printf("did an allocate\n");
+				continue;
+			}
+			else
+			{
+				Free(holder[frees]);
+				printf("did a free\n");
+				++frees;
+				continue;
+			}
+		}
 	}
-
+		
 
 	
 	free(holder);
@@ -409,7 +454,7 @@ int main(int argc, char** argv) {
 void *Malloc(size_t size) {
   set_up(size);
   size = (size & 0x1) ? size + 1 : size;
-  if (size > 4996) {
+  if (size > 4996 || (size == 0)) {
     Error(BIG, __LINE__, __FILE__);
     return 0x0;
   }
