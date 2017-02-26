@@ -1,0 +1,9 @@
+Test E 
+Tests for the consistency of the memories we allocate. We do this by creating unique structs that have particular 
+data depending on which struct it is. We check that each struct is consistent, otherwise we print an error. 
+
+Test F
+Tests that freed blocks are available for use, and that the malloc is consistent with the first free algorithm. 
+We do this by what we did in Test A, where we allocated 1000 bytes. However instead of freeing all of it, we reallocated
+the freed blocks by using the first free algorithm. We first set the block to temp, then free the block, after that we reallocated. If the first free algorithm is correct, then the reallocated block should be the same as the temp block. 
+After we reallocated all the blocks, we refree all the blocks. 
