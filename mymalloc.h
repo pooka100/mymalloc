@@ -9,8 +9,7 @@ enum _errors
 static char myblock[5000];
 /* Start of singly linked list for free partitions */
 static char *start;
-static char *end;
-/* Determines if */
+
 static int _initialized_ = 0;
 /* Largest free block */
 /* Macros: expects start of data(allocated)/list(free) */
@@ -40,5 +39,4 @@ void *Malloc(size_t size);
 void  Free(void *ptr);
 
 
-/*Free functions*/
 
